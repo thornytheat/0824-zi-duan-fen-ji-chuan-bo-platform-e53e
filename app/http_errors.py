@@ -6,6 +6,7 @@ LABELS = {
     'CSV_MALFORMED':'CSV 引号或行格式异常', 'ROW_LIMIT':'文件超过 2000 行', 'FILE_REQUIRED':'请选择 CSV 文件',
     'RUN_NOT_FOUND':'批次不存在', 'REVIEW_FIELDS':'请填写 3 至 200 字复核意见', 'STALE_REVIEW':'批次已更新，请刷新',
     'RUN_FINALIZED':'批次已签发', 'UNRESOLVED_ISSUES':'存在待处理差异', 'SAMPLE_UNKNOWN':'样例不存在', 'STAGE_UNKNOWN':'处理阶段不存在',
+    'APPROVAL_OVERLAP':'审批在重叠日冲突，已暂缓该日签发', 'DAILY_LABEL_MISMATCH':'每日标签与对账标签不一致',
 }
 
 

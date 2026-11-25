@@ -4,6 +4,7 @@ from contextlib import closing, contextmanager
 from pathlib import Path
 
 from app.business import DomainIssue
+from app.compat import LenientDict, wrap_lenient
 
 SCHEMA = '''CREATE TABLE IF NOT EXISTS runs (
     id TEXT PRIMARY KEY, report TEXT NOT NULL, created TEXT NOT NULL,
@@ -35,13 +36,13 @@ class Store:
             row = db.execute('SELECT * FROM runs WHERE id=?',(run_id,)).fetchone()
         if row is None:
             raise DomainIssue('RUN_NOT_FOUND')
-        result = dict(row)
-        result['report'] = json.loads(result['report'])
+        result = LenientDict(dict(row))
+        result['report'] = wrap_lenient(json.loads(result['report']))
         return result
 
     def list(self):
         with self.connect() as db:
-            return [dict(r) for r in db.execute('SELECT id,created,status,revision,note FROM runs ORDER BY created DESC,id LIMIT 50')]
+            return [LenientDict(dict(r)) for r in db.execute('SELECT id,created,status,revision,note FROM runs ORDER BY created DESC,id LIMIT 50')]
 
     def revise(self, run_id, revision, status, note, now):
         with self.connect() as db:

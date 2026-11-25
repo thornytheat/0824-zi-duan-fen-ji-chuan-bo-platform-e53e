@@ -7,7 +7,8 @@ from app.modules.pipeline import run
 from app.review.service import execute, review
 
 api = Blueprint('api',__name__,url_prefix='/api')
-STAGES = {'intake':1,'prepare':2,'calculate':3,'policy':4,'balance':5}
+STAGES = {'intake':1,'prepare':2,'calculate':3,'policy':4,'balance':5,
+          'weekly':5,'week':5,'schedule':5,'daily':5,'labels':3}
 
 
 @api.post('/stages/<stage>')
@@ -15,6 +16,16 @@ def preview(stage):
     if stage not in STAGES:
         raise DomainIssue('STAGE_UNKNOWN')
     return jsonify(run(read_input(),STAGES[stage]))
+
+
+@api.post('/weekly-labels')
+def weekly_labels_preview():
+    return jsonify(run(read_input(), 5))
+
+
+@api.post('/schedule')
+def schedule_preview():
+    return jsonify(run(read_input(), 5))
 
 
 @api.route('/runs',methods=['GET','POST'])

@@ -74,3 +74,12 @@ def overlap(a, b):
         else:
             j += 1
     return total
+
+
+# Re-exported lazily at module load for callers that treat domain helpers as
+# the stable surface.  These modules do not import app.business at module top.
+from app.modules.weekly import (  # noqa: E402
+    build_schedule as weekly_schedule,
+    smart_schedule as daily_labels,
+)
+from app.modules.reconcile import reconcile_days  # noqa: E402

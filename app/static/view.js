@@ -53,7 +53,8 @@ const fieldLabels = {matched:'匹配关系', unmet:'未覆盖', loads:'磅单明
   stockout_min:'缺货分钟', selling_min:'可售分钟', confidence:'置信度', peak_start_min:'峰窗起点',
   windows:'窗口需量', debit:'借方', credit:'贷方', resident:'本币金额', price:'汇率', matched_cents:'匹配分',
   matched_g:'匹配克数', pending:'待匹配', remaining:'剩余余额', live:'可见顺序', tombstones:'墓碑序列',
-  accounted:'已记账行', balanced:'总数平衡', input:'输入行', accepted:'采信行', isolated:'隔离行', mode:'判定方式', pass:'结论', value:'测量值', age:'龄期', picked:'领取数', censored:'删失数', risk:'在险数', remaining_bp:'剩余基点', external:'外校课程', local:'校内课程', field:'字段', ticket:'磅单', net:'净重', revenue:'收入', segment:'客群', channel:'渠道', chosen_touch:'命中触点', elapsed_min:'经过分钟', old_cents:'旧金额', new_cents:'新金额', expansion_cents:'扩张金额', contraction_cents:'收缩金额', churn_cents:'流失金额', due_cents:'应付金额', paid_cents:'已付金额', gap_cents:'差额', warnings:'提示', records:'记录数'};
+  accounted:'已记账行', balanced:'总数平衡', input:'输入行', accepted:'采信行', isolated:'隔离行', mode:'判定方式', pass:'结论', value:'测量值', age:'龄期', picked:'领取数', censored:'删失数', risk:'在险数', remaining_bp:'剩余基点', external:'外校课程', local:'校内课程', field:'字段', ticket:'磅单', net:'净重', revenue:'收入', segment:'客群', channel:'渠道', chosen_touch:'命中触点', elapsed_min:'经过分钟', old_cents:'旧金额', new_cents:'新金额', expansion_cents:'扩张金额', contraction_cents:'收缩金额', churn_cents:'流失金额', due_cents:'应付金额', paid_cents:'已付金额', gap_cents:'差额', warnings:'提示', records:'记录数',
+  days:'每日标签', day:'日期', daily:'每日', schedule_days:'签发日历', grade:'标签等级', label:'适用标签', expected:'下游可接受等级', required_grade:'要求等级', signable:'可签发', can_sign:'可签发', held:'暂缓', overlap:'审批重叠', code:'判定码', reason:'原因', signable_days:'可签日', held_days:'暂缓日', overlap_days:'重叠日', gap_days:'断档日', signable_count:'可签天数', held_count:'暂缓天数', total_days:'天数', all_signable:'整周可签', daily_balanced:'每日对账平衡', labels_balanced:'每日标签一致', case:'业务分组', status:'状态'};
 
 function detailValue(value) {
   if (Array.isArray(value) && value.every(item => item === null || typeof item !== 'object')) {
@@ -101,7 +102,25 @@ export function snapshot(report, selected, stage) {
   table.createTHead().append(head);
   const picked = report.cases?.find(row=>row.case===selected);
   document.querySelector('#detail-title').textContent = picked ? `分组 ${picked.case}` : '采信摘要';
-  const shown = picked ? picked.measure?.evidence ?? picked.prep?.details ?? {原因:picked.status} : stats.reasons;
+  let shown;
+  if (picked?.measure?.evidence) {
+    const evidence = picked.measure.evidence;
+    shown = {
+      grades: evidence.grades,
+      approved: evidence.approved,
+      expired: evidence.expired,
+      days: (picked.schedule?.days || evidence.days || []).map(day => ({
+        day: day.day,
+        grade: day.grade ?? day.label,
+        expected: day.expected,
+        status: day.code || day.status,
+        signable: day.signable,
+        overlap: Boolean(day.overlap),
+      })),
+    };
+  } else {
+    shown = picked?.prep?.details ?? {原因:picked?.status || stats.reasons};
+  }
   document.querySelector('#detail').replaceChildren(detailValue(shown));
   document.querySelector('#counts').textContent = report.balance ? `行数 ${report.balance.accounted}/${report.balance.input} · ${report.balance.ready} 组通过` : `采信 ${stats.accepted} 行 · 隔离 ${stats.rejected} 行`;
 }
